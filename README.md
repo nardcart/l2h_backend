@@ -158,16 +158,35 @@ npm run lint     # Run ESLint
 - Rate limiting: 100 requests per 15 minutes per IP
 - File uploads go to Cloudflare R2 (S3-compatible)
 
+## 🚀 Deployment
+
+Ready to deploy to production? See the complete deployment guide:
+
+👉 **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Step-by-step guide for Render.com
+
+Quick deployment:
+```bash
+# 1. Push to GitHub
+git push origin main
+
+# 2. Go to render.com and create new Blueprint
+# 3. Connect your repo (will use render.yaml)
+# 4. Set environment variables
+# 5. Deploy!
+```
+
+Your API will be live at: `https://your-app-name.onrender.com`
+
 ## 🔧 Next Steps
 
 1. ✅ Backend is complete and running
 2. 📝 Connect frontend to API endpoints
 3. 🎨 Build admin panel UI
-4. 🚀 Deploy to production
+4. 🚀 Deploy to production (see DEPLOYMENT.md)
 
 ---
 
-**Status:** ✅ Backend Complete | Frontend Integration Next
+**Status:** ✅ Backend Complete | Ready for Deployment
 
 
 

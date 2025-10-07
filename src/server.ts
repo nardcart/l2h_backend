@@ -32,9 +32,35 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Allow multiple origins
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : ['http://localhost:8080'];
+
+// Always include localhost for development
+if (!allowedOrigins.includes('http://localhost:8080')) {
+  allowedOrigins.push('http://localhost:8080');
+}
+
+console.log('🔐 CORS: Allowed origins:', allowedOrigins);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list or matches Vercel pattern
+    const isAllowed = allowedOrigins.includes(origin) || 
+                     /\.vercel\.app$/.test(origin) ||
+                     /^http:\/\/localhost(:\d+)?$/.test(origin);
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn('❌ CORS: Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'authorization'],
