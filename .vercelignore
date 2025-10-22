@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+src
+tsconfig.json
+*.md
+*.bat
+test-*.js
+RECALCULATE_POST_COUNTS.bat
+SETUP_EMAIL.bat
+start.bat
+STOP_AND_RESTART.bat
+

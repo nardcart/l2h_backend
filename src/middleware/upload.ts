@@ -7,7 +7,7 @@ const storage = multer.memoryStorage();
 
 // File filter function
 const fileFilter = (
-  req: Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback
 ): void => {
@@ -45,7 +45,7 @@ export const uploadFields = (fields: { name: string; maxCount: number }[]) =>
 // Ebook-specific upload (allows images and PDFs)
 export const ebookUpload = multer({
   storage,
-  fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     const allowedTypes = [
       'image/jpeg',
       'image/jpg',

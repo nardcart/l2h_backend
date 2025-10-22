@@ -6,7 +6,7 @@ import { sendOTPEmail } from '../config/email';
 
 export const submitComment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { blogId, name, email, mobile, countryCode, comment } = req.body;
+    const { email } = req.body;
 
     // Generate OTP
     const otp = generateOTP(6);

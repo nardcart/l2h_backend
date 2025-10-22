@@ -1,14 +1,14 @@
 import express from 'express';
 import * as ebookAdminController from '../controllers/ebook-admin.controller';
 import * as ebookUploadController from '../controllers/ebook-upload.controller';
-import { authMiddleware } from '../middleware/auth';
+// import { authenticate } from '../middleware/auth';
 import { ebookUpload } from '../middleware/upload';
 
 const router = express.Router();
 
 // All admin routes require authentication
 // Uncomment the line below when auth is ready
-// router.use(authMiddleware);
+// router.use(authenticate);
 
 // File uploads (must be before other routes)
 router.post('/upload/image', ebookUpload.single('file'), ebookUploadController.uploadEbookImage);

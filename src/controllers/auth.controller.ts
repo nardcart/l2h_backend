@@ -26,13 +26,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Generate tokens
     const accessToken = generateAccessToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       email: user.email,
       role: user.role,
     });
 
     const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       email: user.email,
       role: user.role,
     });
@@ -95,13 +95,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Generate tokens
     const accessToken = generateAccessToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       email: user.email,
       role: user.role,
     });
 
     const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       email: user.email,
       role: user.role,
     });

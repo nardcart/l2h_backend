@@ -117,14 +117,31 @@ app.use(notFoundHandler);
 // Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-const startServer = async () => {
+// Initialize services (database, email)
+const initializeServices = async () => {
   try {
     // Connect to database
     await connectDatabase();
     
     // Initialize email transporter
     initializeEmailTransporter();
+    
+    console.log('✅ Services initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize services:', error);
+    throw error;
+  }
+};
+
+// For Vercel serverless deployment, initialize services immediately
+initializeServices().catch(error => {
+  console.error('❌ Service initialization failed:', error);
+});
+
+// Start server (only in non-Vercel environments)
+const startServer = async () => {
+  try {
+    await initializeServices();
     
     // Start listening
     app.listen(PORT, () => {
@@ -145,18 +162,25 @@ const startServer = async () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {
   console.error('❌ Unhandled Promise Rejection:', err);
-  // Close server & exit process
-  process.exit(1);
+  // Close server & exit process (only in non-serverless environment)
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err: Error) => {
   console.error('❌ Uncaught Exception:', err);
-  process.exit(1);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 });
 
-// Start the server
-startServer();
+// Start the server only if not running in Vercel's serverless environment
+if (!process.env.VERCEL) {
+  startServer();
+}
 
+// Export the Express app for Vercel
 export default app;
 

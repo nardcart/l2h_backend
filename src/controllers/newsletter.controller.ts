@@ -6,7 +6,7 @@ import { sendOTPEmail, sendNewsletterWelcomeEmail } from '../config/email';
 
 export const subscribe = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, name } = req.body;
+    const { email } = req.body;
 
     // Check if already subscribed
     const existing = await Newsletter.findOne({ email });
