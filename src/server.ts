@@ -29,6 +29,10 @@ console.log('');
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy - Required for Vercel/proxy environments
+// This allows Express to correctly identify client IPs from X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
@@ -49,10 +53,13 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
     
-    // Check if origin is in allowed list or matches Vercel pattern
+    // Check if origin is in allowed list or matches common patterns
     const isAllowed = allowedOrigins.includes(origin) || 
                      /\.vercel\.app$/.test(origin) ||
-                     /^http:\/\/localhost(:\d+)?$/.test(origin);
+                     /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
+                     /\.l2h\.in$/.test(origin) ||  // Allow l2h.in subdomains
+                     origin === 'https://www.l2h.in' ||
+                     origin === 'https://l2h.in';
     
     if (isAllowed) {
       callback(null, true);
