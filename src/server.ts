@@ -15,14 +15,17 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 const envPath = path.resolve(__dirname, '../.env');
 dotenv.config({ path: envPath });
 
-console.log('📂 Loading .env from:', envPath);
+console.log('Loading .env from:', envPath);
 
 // Debug: Check if critical env variables are loaded
-console.log('🔍 Environment Variables Check:');
+console.log('Environment Variables Check:');
 console.log('   PORT:', process.env.PORT || '5000 (default)');
-console.log('   MONGODB_URI:', process.env.MONGODB_URI ? '✅ Set' : '❌ Missing');
-console.log('   JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ Missing');
-console.log('   BLOB_READ_WRITE_TOKEN:', process.env.BLOB_READ_WRITE_TOKEN ? '✅ Set (Vercel Blob enabled)' : '❌ Not Set (Vercel Blob disabled)');
+console.log('   MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Missing');
+console.log('   JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Missing');
+console.log(
+  '   BLOB_READ_WRITE_TOKEN:',
+  process.env.BLOB_READ_WRITE_TOKEN ? 'Set (Vercel Blob enabled)' : 'Not Set (Vercel Blob disabled)'
+);
 console.log('');
 
 // Create Express app
@@ -36,45 +39,22 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet());
 
-// CORS configuration - Allow multiple origins
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-  : ['http://localhost:8080'];
+// CORS configuration - reflect any requesting origin
+console.log('CORS: Allowing requests from any origin');
 
-// Always include localhost for development
-if (!allowedOrigins.includes('http://localhost:8080')) {
-  allowedOrigins.push('http://localhost:8080');
-}
-
-console.log('🔐 CORS: Allowed origins:', allowedOrigins);
-
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, curl)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or matches common patterns
-    const isAllowed = allowedOrigins.includes(origin) || 
-                     /\.vercel\.app$/.test(origin) ||
-                     /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
-                     /\.l2h\.in$/.test(origin) ||  // Allow l2h.in subdomains
-                     origin === 'https://www.l2h.in' ||
-                     origin === 'https://l2h.in';
-    
-    if (isAllowed) {
+app.use(
+  cors({
+    origin: (_origin, callback) => {
       callback(null, true);
-    } else {
-      console.warn('❌ CORS: Blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-}));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'authorization'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
 
 // Compression middleware
 app.use(compression());
@@ -83,7 +63,7 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging middleware (only in development)
+// Logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
@@ -92,8 +72,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: {
     status: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -121,73 +101,62 @@ app.get('/', (req, res) => {
 // 404 handler
 app.use(notFoundHandler);
 
-// Error handler (must be last)
+// Error handler
 app.use(errorHandler);
 
 // Initialize services (database, email)
 const initializeServices = async () => {
   try {
-    // Connect to database
     await connectDatabase();
-    
-    // Initialize email transporter
     initializeEmailTransporter();
-    
-    console.log('✅ Services initialized successfully');
+    console.log('Services initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize services:', error);
+    console.error('Failed to initialize services:', error);
     throw error;
   }
 };
 
 // For Vercel serverless deployment, initialize services immediately
-initializeServices().catch(error => {
-  console.error('❌ Service initialization failed:', error);
+initializeServices().catch((error) => {
+  console.error('Service initialization failed:', error);
 });
 
 // Start server (only in non-Vercel environments)
 const startServer = async () => {
   try {
     await initializeServices();
-    
-    // Start listening
+
     app.listen(PORT, () => {
       console.log('=================================');
-      console.log(`🚀 Server is running!`);
-      console.log(`📡 Port: ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔗 URL: http://localhost:${PORT}`);
-      console.log(`📚 Health Check: http://localhost:${PORT}/api/health`);
+      console.log('Server is running!');
+      console.log(`Port: ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`URL: http://localhost:${PORT}`);
+      console.log(`Health Check: http://localhost:${PORT}/api/health`);
       console.log('=================================');
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {
-  console.error('❌ Unhandled Promise Rejection:', err);
-  // Close server & exit process (only in non-serverless environment)
+  console.error('Unhandled Promise Rejection:', err);
   if (!process.env.VERCEL) {
     process.exit(1);
   }
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err: Error) => {
-  console.error('❌ Uncaught Exception:', err);
+  console.error('Uncaught Exception:', err);
   if (!process.env.VERCEL) {
     process.exit(1);
   }
 });
 
-// Start the server only if not running in Vercel's serverless environment
 if (!process.env.VERCEL) {
   startServer();
 }
 
-// Export the Express app for Vercel
 export default app;
-

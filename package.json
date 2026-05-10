@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
     "test": "jest",
-    "recalculate-posts": "tsx src/utils/recalculate-post-counts.ts"
+    "recalculate-posts": "tsx src/utils/recalculate-post-counts.ts",
+    "check-mongodb": "tsx src/utils/check-mongodb.ts"
   },
   "keywords": [
     "blog",
