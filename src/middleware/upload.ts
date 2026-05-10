@@ -65,3 +65,26 @@ export const ebookUpload = multer({
   },
 });
 
+// Alumni-specific upload (allows images and PDFs with higher size limit)
+export const alumniUpload = multer({
+  storage,
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'application/pdf',
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images (JPG, PNG, WebP) and PDF files are allowed.'));
+    }
+  },
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB max file size
+  },
+});
+
