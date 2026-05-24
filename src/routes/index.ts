@@ -10,6 +10,7 @@ import ebookRoutes from './ebook.routes';
 import ebookAdminRoutes from './ebook-admin.routes';
 import userRoutes from './user.routes';
 import alumniRoutes from './alumni.routes';
+import companyRoutes from './company.routes';
 
 const router = Router();
 
@@ -34,6 +35,7 @@ router.use('/ebooks', ebookRoutes);
 router.use('/admin/ebooks', ebookAdminRoutes);
 router.use('/admin/users', userRoutes);
 router.use('/alumni', alumniRoutes);
+router.use('/companies', companyRoutes);
 
 export default router;
 
