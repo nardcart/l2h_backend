@@ -88,3 +88,30 @@ export const alumniUpload = multer({
   },
 });
 
+// Candidate-specific upload (allows images, PDFs, and videos)
+export const candidateUpload = multer({
+  storage,
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'application/pdf',
+      'video/mp4',
+      'video/webm',
+      'video/quicktime',
+      'video/x-msvideo',
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images (JPG, PNG, WebP), PDF, and video files are allowed.'));
+    }
+  },
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB max file size
+  },
+});
+

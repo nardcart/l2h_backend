@@ -11,6 +11,7 @@ import ebookAdminRoutes from './ebook-admin.routes';
 import userRoutes from './user.routes';
 import alumniRoutes from './alumni.routes';
 import companyRoutes from './company.routes';
+import candidateRoutes from './candidate.routes';
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.use('/admin/ebooks', ebookAdminRoutes);
 router.use('/admin/users', userRoutes);
 router.use('/alumni', alumniRoutes);
 router.use('/companies', companyRoutes);
+router.use('/candidates', candidateRoutes);
 
 export default router;
 
